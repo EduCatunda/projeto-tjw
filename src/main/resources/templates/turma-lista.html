@@ -40,7 +40,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    fetch('http://127.0.0.1:8080/turma/listar')
+    fetch('/turma/listar')
         .then(response => response.json())
         .then(data => {
             data.forEach(turma => {
@@ -83,10 +83,13 @@
             row.innerHTML = `
               <td>${turma.id}</td>
               <td>${turma.nome}</td>
-              <td>${turma.professor}</td>
+              <td>${turma.professor.nome}</td>
               <td>
+                <a href="/turmas/matricular/${turma.id}" class="btn btn-sm btn-success">
+                    Matricular alunos
+                </a>
                 <a href="/turmas/editar/${turma.id}" class="btn btn-sm btn-primary">
-                  Editar
+                    Editar
                 </a>
                 <a href="#" class="btn btn-sm btn-danger" onclick="deleteTurma(${turma.id})">
                   Remover

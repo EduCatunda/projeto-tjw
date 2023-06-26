@@ -38,11 +38,10 @@ public class ProfessorController {
 
 	@DeleteMapping("/excluir/{id}")
 	public void excluir(@PathVariable("id") Long id, ModelMap model) {
-		if(profService.professorTemTurmas(id)) {
-			model.addAttribute("fail", "Professor não removido. Possui Turma(s) vinculado(s).");
-		}else {
+		if (profService.professorTemTurmas(id)) {
+			model.addAttribute("error", "O professor está relacionado a turmas e não pode ser excluído.");
+		} else {
 			profService.excluir(id);
-			model.addAttribute("success", "Professor excluido com sucesso.");
 		}
 	}
 

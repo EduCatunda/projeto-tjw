@@ -14,7 +14,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,8 +29,7 @@ public class Turma {
 
 	@Column(name="nome", nullable = false, unique = true)
 	private String nome;
-	
-	@NotNull(message = "Selecione o professor relativo a turma.")
+
 	@ManyToOne
 	@JoinColumn(name="id_professor")
 	private Professor professor;
