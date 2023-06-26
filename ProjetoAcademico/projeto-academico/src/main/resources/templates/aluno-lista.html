@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<title>Site Acadêmico - Listagem de Aluno</title>
+	<div th:replace="~{fragments/head}"></div>
+</head>
+
+<body>
+  <div th:replace="~{fragments/header}"></div>
+
+  <div class="container mt-5">
+    <h1>Lista de Alunos</h1>
+
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Pesquisar aluno por nome" id="search-input">
+      <button class="btn btn-outline-primary" type="button" id="search-button">Pesquisar</button>
+    </div>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+		  <th>Id</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Turmas</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="alunos-table">
+		<script>
+			fetch('http://127.0.0.1:8080/aluno/listar')
+				.then(response => response.json())
+				.then(data => {
+					data.forEach(aluno => {
+						const row = document.createElement('tr')
+						row.innerHTML = `
+							<td>${aluno.id}</td>
+							<td>${aluno.nome}</td>
+							<td>${aluno.email}</td>
+              <td>
+                <a href="/alunos/turmas/${aluno.id}" class="btn btn-sm btn-primary">
+                  Turmas
+                </a>
+              </td>
+							<td>
+								<a href="/alunos/editar/${aluno.id}" class="btn btn-sm btn-primary">
+									Editar
+								</a>
+								<a href="#" class="btn btn-sm btn-danger" onclick="deleteAluno(${aluno.id})">
+									Remover
+								</a>
+							</td>
+						`
+						document.querySelector('tbody').appendChild(row)
+					})
+				})
+				.catch(error => {
+					console.error('Ocorreu um erro ao obter os dados dos alunos:', error)
+				})
+      
+      document.getElementById("search-button").addEventListener("click", function () {
+      const nome = document.getElementById("search-input").value;
+      const url = nome ? `/aluno/buscar/${nome}` : "http://127.0.0.1:8080/aluno/listar";
+
+        fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const alunosTable = document.getElementById("alunos-table");
+          alunosTable.innerHTML = "";
+
+          data.forEach(aluno => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${aluno.id}</td>
+              <td>${aluno.nome}</td>
+              <td>${aluno.email}</td>
+              <td>
+                <a href="/alunos/editar/${aluno.id}" class="btn btn-sm btn-primary">
+                  Editar
+                </a>
+                <a href="#" class="btn btn-sm btn-danger" onclick="deleteStudent(${aluno.id})">
+                  Remover
+                </a>
+              </td>
+            `;
+            alunosTable.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error("Ocorreu um erro ao buscar os alunos:", error);
+        });
+      });
+      function deleteAluno(id) {
+        if (confirm('Deseja realmente excluir este aluno?')) {
+          fetch(`/aluno/excluir/${id}`, {
+            method: 'DELETE'
+          })
+            .then(response => {
+              if (response.ok) {
+                location.reload()
+              } else {
+                console.error('Ocorreu um erro ao excluir o aluno.')
+              }
+            })
+            .catch(error => {
+              console.error('Ocorreu um erro ao excluir o aluno:', error)
+            })
+        }
+      }
+		</script>
+      </tbody>
+    </table>
+    <div class="col-md-4 text-right">
+		<a href="/alunos/salvar" class="btn btn-primary">
+			<i class="fas fa-plus"></i> Cadastrar novo aluno
+		</a>
+	</div> 
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
