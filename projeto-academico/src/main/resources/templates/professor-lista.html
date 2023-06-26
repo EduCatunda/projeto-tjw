@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<title>Site Acadêmico - Listagem de Professor</title>
+	<div th:replace="~{fragments/head}"></div>
+</head>
+
+<body>
+  <div th:replace="~{fragments/header}"></div>
+
+  <div class="container mt-5">
+    <h1>Lista de Professores</h1>
+
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Pesquisar professor por nome" id="search-input">
+      <button class="btn btn-outline-primary" type="button" id="search-button">Pesquisar</button>
+    </div>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Turmas</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="professores-table">
+        <!-- Dados dos professores serão carregados dinamicamente aqui -->
+      </tbody>
+    </table>
+
+    <div class="col-md-4 text-right">
+      <a href="/professores/salvar" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Cadastrar novo professor
+      </a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    fetch('http://127.0.0.1:8080/professor/listar')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(professor => {
+                const row = document.createElement('tr')
+                row.innerHTML = `
+                    <td>${professor.id}</td>
+                    <td>${professor.nome}</td>
+                    <td>${professor.email}</td>
+                    <td>
+                      <a href="/professores/turmas/${professor.id}" class="btn btn-sm btn-primary">
+                        Turmas
+                      </a>
+                    </td>
+                    <td>
+                        <a href="/professores/editar/${professor.id}" class="btn btn-sm btn-primary">
+                            Editar
+                        </a>
+                        <a href="#" class="btn btn-sm btn-danger" onclick="deleteProfessor(${professor.id})">
+                            Remover
+                        </a>
+                    </td>
+                `
+                document.querySelector('tbody').appendChild(row)
+            })
+        })
+        .catch(error => {
+            console.error('Ocorreu um erro ao obter os dados dos professores:', error)
+        })
+    document.getElementById("search-button").addEventListener("click", function () {
+      const nome = document.getElementById("search-input").value;
+
+      const url = nome ? `/professor/buscar/${nome}` : "/professor/listar";
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const professoresTable = document.getElementById("professores-table");
+          professoresTable.innerHTML = "";
+
+          data.forEach(professor => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${professor.id}</td>
+              <td>${professor.nome}</td>
+              <td>${professor.email}</td>
+              <td>
+                <a href="/professores/disciplinas/${professor.id}" class="btn btn-sm btn-primary">
+                  Disciplinas
+                </a>
+              </td>
+              <td>
+                <a href="/professores/editar/${professor.id}" class="btn btn-sm btn-primary">
+                  Editar
+                </a>
+                <a href="#" class="btn btn-sm btn-danger" onclick="deleteProfessor(${professor.id})">
+                  Remover
+                </a>
+              </td>
+            `;
+            professoresTable.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error("Ocorreu um erro ao buscar os professores:", error);
+        });
+    });
+
+    function deleteProfessor(id) {
+      if (confirm("Deseja realmente excluir este professor?")) {
+        fetch(`/professor/excluir/${id}`, {
+          method: "DELETE"
+        })
+          .then(response => {
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error("Ocorreu um erro ao excluir o professor.");
+            }
+          })
+          .catch(error => {
+            console.error("Ocorreu um erro ao excluir o professor:", error);
+          });
+      }
+    }
+  </script>
+</body>
+
+</html>
